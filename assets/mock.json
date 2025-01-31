@@ -1,0 +1,50 @@
+{
+  "points": 68,
+  "availableCoupon": {
+    "CouponType": {
+      "Coupon": {
+        "fixedAmount": 50,
+        "PercentDiscount": 10
+      },
+      "OnTop": {
+        "Percentageitemcategory": 15,
+        "Point": 68
+      },
+      "Seasonal": {
+        "SpecialCampaign": "Discount: 40 THB at every 300 THB"
+      }
+    }
+  },
+  "availableItems": [
+    {
+      "name": "T-Shirt",
+      "price": "350",
+      "category": "Clothing"
+    },
+    {
+      "name": "Hat",
+      "price": "250",
+      "category": "Clothing"
+    },
+    {
+      "name": "Hoodie",
+      "price": "700",
+      "category": "Clothing"
+    },
+    {
+      "name": "Bag",
+      "price": "640",
+      "category": "Accessories"
+    },
+    {
+      "name": "Belt",
+      "price": "230",
+      "category": "Accessories"
+    },
+    {
+      "name": "Watch",
+      "price": "850",
+      "category": "Electronics"
+    }
+  ]
+}
