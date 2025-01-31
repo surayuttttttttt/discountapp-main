@@ -1,4 +1,4 @@
-# discountapp
+# discountapp by Surayut Boonchuang
 
 An assignment of discount module app.
 
