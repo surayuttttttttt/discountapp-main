@@ -1,11 +1,16 @@
 import 'package:discountapp/ltems_list.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 
 void main() {
-  runApp(
-    GetMaterialApp(debugShowCheckedModeBanner: false, home: const MyApp()),
-  );
+  if (kIsWeb) {
+    runApp(
+      GetMaterialApp(debugShowCheckedModeBanner: false, home: const MyApp()),
+    );
+  } else {
+    throw UnsupportedError('This application only runs on the web.');
+  }
 }
 
 class MyApp extends StatelessWidget {
