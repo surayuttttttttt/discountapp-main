@@ -148,48 +148,201 @@ class _ItemListScreenState extends State<ItemListScreen> {
           child: Text('Available Coupon',
               style: CustomTextStyle().textStyle.copyWith(fontSize: 20)),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ...List.generate(
-              5,
-              (index) {
-                return GestureDetector(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
                   onTap: () {
-                    if (controller.cart.isNotEmpty &&
-                        (controller.currentIndex.value != index)) {
-                      controller.currentIndex.value = index;
-                      controller.useDiscount(index);
+                    if (controller.cart.isNotEmpty) {
+                      controller.currentCouponIndex.value = 1;
+                      controller.useDiscountByCoupon(
+                          controller.currentCouponIndex.value);
                     }
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: SizedBox(
-                        width: 80,
-                        child: Obx(
-                          () => Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: index == controller.currentIndex.value
-                                      ? Colors.green
-                                      : Color.fromARGB(255, 206, 206, 206),
-                                  width: 5),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: ClipRRect(
-                              child: Image.asset(
-                                'images/${index + 1}.png',
-                                fit: BoxFit.cover,
+                    child: Obx(
+                      () => SizedBox(
+                        height: 50,
+                        //    width: 80,
+                        child: Card(
+                          elevation: 8,
+                          color: controller.currentCouponIndex.value == 1
+                              ? Colors.green
+                              : Color.fromARGB(255, 255, 255, 255),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                child: Image.asset(
+                                  'images/1.png',
+                                  fit: BoxFit.cover,
+                                ),
                               ),
+                              Text('Discount 50 THB')
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                    onTap: () {
+                      if (controller.cart.isNotEmpty) {
+                        controller.currentCouponIndex.value = 2;
+                        controller.useDiscountByCoupon(
+                            controller.currentCouponIndex.value);
+                        print(controller.currentCouponIndex.value);
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Obx(
+                        () => SizedBox(
+                          height: 50,
+                          child: Card(
+                            elevation: 8,
+                            color: controller.currentCouponIndex.value == 2
+                                ? Colors.green
+                                : Color.fromARGB(255, 255, 255, 255),
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  child: Image.asset(
+                                    'images/2.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Text('Discount 10 %')
+                              ],
                             ),
                           ),
-                        )),
+                        ),
+                      ),
+                    )),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    if (controller.currentOnTopIndex.value != 1) {
+                      controller.currentOnTopIndex.value = 1;
+                      controller.useDiscountByOnTop(
+                          controller.currentOnTopIndex.value);
+                      print(controller.currentOnTopIndex.value);
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => SizedBox(
+                        height: 50,
+                        child: Card(
+                          elevation: 8,
+                          color: controller.currentOnTopIndex.value == 1
+                              ? Colors.green
+                              : Color.fromARGB(255, 255, 255, 255),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                child: Image.asset(
+                                  'images/3.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Text('Discount 15 % off clothing ')
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                );
-              },
+                ),
+                GestureDetector(
+                  onTap: () {
+                    if (controller.cart.isNotEmpty) {
+                      controller.currentOnTopIndex.value = 2;
+                      controller.useDiscountByOnTop(
+                          controller.currentOnTopIndex.value);
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => SizedBox(
+                        height: 50,
+                        child: Card(
+                          elevation: 8,
+                          color: controller.currentOnTopIndex.value == 2
+                              ? Colors.green
+                              : Color.fromARGB(255, 255, 255, 255),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                child: Image.asset(
+                                  'images/4.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Text('Points Discount max 20%')
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                    onTap: () {
+                      controller.isUseSeasonal.value =
+                          !controller.isUseSeasonal.value;
+                      controller.useDiscountBySeasonal();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Obx(
+                        () => SizedBox(
+                          height: 50,
+                          child: Card(
+                            elevation: 8,
+                            color: controller.isUseSeasonal.value
+                                ? Colors.green
+                                : Color.fromARGB(255, 255, 255, 255),
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  child: Image.asset(
+                                    'images/5.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Text('40 ฿ off every 300฿')
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )),
+              ],
             ),
           ],
         ),
+
+        //Build seasonal
       ],
     );
   }
@@ -208,6 +361,45 @@ class _ItemListScreenState extends State<ItemListScreen> {
                   ),
                   Text(
                     ' ${controller.totalDiscount.value}',
+                    style: CustomTextStyle().textStyle.copyWith(fontSize: 30),
+                  )
+                ],
+              )),
+          Obx(() => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Discount From Coupon',
+                    style: CustomTextStyle().textStyle.copyWith(fontSize: 20),
+                  ),
+                  Text(
+                    ' ${controller.totalDiscountFromCoupon.value}',
+                    style: CustomTextStyle().textStyle.copyWith(fontSize: 30),
+                  )
+                ],
+              )),
+          Obx(() => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Discount From On Top',
+                    style: CustomTextStyle().textStyle.copyWith(fontSize: 20),
+                  ),
+                  Text(
+                    ' ${controller.totalDiscountFromOnTop.value}',
+                    style: CustomTextStyle().textStyle.copyWith(fontSize: 30),
+                  )
+                ],
+              )),
+          Obx(() => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Discount From Seasonal',
+                    style: CustomTextStyle().textStyle.copyWith(fontSize: 20),
+                  ),
+                  Text(
+                    ' ${controller.totalDiscountFromSeasonal.value}',
                     style: CustomTextStyle().textStyle.copyWith(fontSize: 30),
                   )
                 ],

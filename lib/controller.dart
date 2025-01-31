@@ -8,10 +8,19 @@ class DiscountController extends GetxController {
   Rx<double> originalTotal = 0.0.obs;
   Rx<double> totalDiscount = 0.0.obs;
   RxInt currentIndex = 99.obs;
+  RxInt currentOnTopIndex = 99.obs;
+  RxInt currentCouponIndex = 99.obs;
+  RxBool isUseSeasonal = false.obs;
+  RxBool onTopActive = false.obs;
+
   RxString currentCampaign = ''.obs;
   RxList<AvailableItem> cart = <AvailableItem>[].obs;
   RxMap<String, int> itemCounts = <String, int>{}.obs;
   DiscountModel? discountModel;
+
+  Rx<double> totalDiscountFromCoupon = 0.0.obs;
+  Rx<double> totalDiscountFromOnTop = 0.0.obs;
+  Rx<double> totalDiscountFromSeasonal = 0.0.obs;
 
   getData() async {
     final mockJson = await rootBundle.loadString('/mock.json');
@@ -26,6 +35,13 @@ class DiscountController extends GetxController {
     totalDiscount.value = 0.0;
     itemCounts.clear();
     originalTotal.value = 0;
+    currentCouponIndex.value = 0;
+    currentOnTopIndex.value = 0;
+    isUseSeasonal.value = false;
+
+    totalDiscountFromCoupon.value = 0;
+    totalDiscountFromOnTop.value = 0;
+    totalDiscountFromSeasonal.value = 0;
   }
 
   addToCart(AvailableItem items) {
@@ -39,25 +55,82 @@ class DiscountController extends GetxController {
     total.value = total.value + int.parse(items.price);
   }
 
+  calculateDiscount() {
+    totalDiscount.value = totalDiscountFromCoupon.value +
+        totalDiscountFromOnTop.value +
+        totalDiscountFromSeasonal.value;
+
+    total.value = total.value - totalDiscount.value;
+  }
+
+  useDiscountByCoupon(int couponIndex) {
+    // totalDiscountFromOnTop.value = 0;
+    // currentOnTopIndex.value = couponIndex;
+    total.value = originalTotal.value;
+    totalDiscount.value = 0.0;
+
+    //INDEX 1 = FIXED
+    //INDEX 2 = PERCENTAGE
+    if (couponIndex == 1) {
+      double useFixedCouponTotal = useFixedCouponDiscount(cart, 50);
+      totalDiscountFromCoupon.value = useFixedCouponTotal;
+      calculateDiscount();
+    } else if (couponIndex == 2) {
+      double usePercentDiscountedTotal = usePercentageDiscount(10);
+      totalDiscountFromCoupon.value = usePercentDiscountedTotal;
+      calculateDiscount();
+    }
+  }
+
+  useDiscountByOnTop(int couponIndex) {
+    total.value = originalTotal.value;
+    totalDiscount.value = 0.0;
+    //INDEX 1 = PERCENTAGE
+    //INDEX 2 = PERCENTAGE BY CAT
+    if (couponIndex == 1) {
+      double useCategoryDiscountedTotal = useCategoryDiscount(
+          cart, discountModel!.availableItems, "Clothing", 15);
+      totalDiscountFromOnTop.value = useCategoryDiscountedTotal;
+      calculateDiscount();
+    } else if (couponIndex == 2) {
+      double pointDiscountedTotal =
+          usePoints(customerPoints: 68, discountCapPercent: 20);
+      totalDiscountFromOnTop.value = pointDiscountedTotal;
+      calculateDiscount();
+    }
+  }
+
+  useDiscountBySeasonal() {
+    if (!isUseSeasonal.value) {
+      total.value = originalTotal.value;
+      totalDiscountFromSeasonal.value = 0.0;
+    }
+    total.value = originalTotal.value;
+    totalDiscountFromSeasonal.value = 0.0;
+    double specialCampaignDiscountedTotal = useSpecialCampaign(cart, 300, 40);
+    totalDiscountFromSeasonal.value = specialCampaignDiscountedTotal;
+    calculateDiscount();
+    if (!isUseSeasonal.value) {
+      total.value = originalTotal.value;
+      totalDiscountFromSeasonal.value = 0.0;
+    }
+  }
+
   double useFixedCouponDiscount(
       List<AvailableItem> cart, double discountValue) {
-    totalDiscount.value = discountValue;
-    total.value -= discountValue;
-
-    return total.value;
+    totalDiscountFromCoupon.value = discountValue;
+    return totalDiscountFromCoupon.value;
   }
 
   double usePercentageDiscount(double discountPercent) {
     double discountAmount = (total * discountPercent) / 100;
-    totalDiscount.value = discountAmount;
-    total.value = total.value - discountAmount;
-    return total.value;
+    totalDiscountFromCoupon.value = discountAmount;
+    print(totalDiscountFromCoupon.value);
+    return totalDiscountFromCoupon.value;
   }
 
   double useCategoryDiscount(List<AvailableItem> cart,
       List<AvailableItem> items, String category, double discountPercent) {
-    double totalPrice = 0.0;
-
     for (var entry in cart) {
       String itemName = entry.name;
       double itemPrice = double.parse(entry.price);
@@ -65,26 +138,13 @@ class DiscountController extends GetxController {
       if (item.category == category) {
         double discountAmount = itemPrice * (discountPercent / 100);
         itemPrice -= discountAmount;
-        totalDiscount += discountAmount;
+        totalDiscountFromOnTop.value += discountAmount;
       }
-
-      totalPrice += itemPrice;
     }
 
-    return totalPrice;
-  }
+    print(totalDiscountFromOnTop.value);
 
-  double useSpecialCampaign(
-      List<AvailableItem> car, double threshold, double discountAmount) {
-    double totalPrice = 0.0;
-    for (var item in cart) {
-      totalPrice += double.parse(item.price);
-    }
-    int discountMultiplier = (totalPrice / threshold).floor();
-    double discount = discountMultiplier * discountAmount;
-    totalDiscount.value = discount;
-
-    return totalPrice - discount;
+    return totalDiscountFromOnTop.value;
   }
 
   double usePoints({
@@ -95,56 +155,25 @@ class DiscountController extends GetxController {
     for (var item in cart) {
       totalPrice += double.parse(item.price);
     }
+    print('Total Price $totalPrice');
     double maxDiscount = totalPrice * (discountCapPercent / 100);
     double discountFromPoints = customerPoints.toDouble();
-    totalDiscount.value =
-        discountFromPoints > maxDiscount ? maxDiscount : discountFromPoints;
 
-    return discountFromPoints > maxDiscount ? maxDiscount : discountFromPoints;
+    totalDiscountFromOnTop.value =
+        discountFromPoints > maxDiscount ? maxDiscount : discountFromPoints;
+    return totalDiscountFromOnTop.value;
   }
 
-  useDiscount(int couponIndex) {
-    total.value = originalTotal.value;
-    totalDiscount.value = 0.0;
-    switch (couponIndex) {
-      case 0:
-        {
-          double useFixedCouponTotal = useFixedCouponDiscount(cart, 50);
-          total.value = useFixedCouponTotal;
-        }
-        break;
-      case 1:
-        {
-          double usePercentDiscountedTotal = usePercentageDiscount(10);
-          total.value = usePercentDiscountedTotal;
-        }
-        break;
-      case 2:
-        {
-          double usecategoryDiscountedTotal = useCategoryDiscount(
-              cart, discountModel!.availableItems, "Clothing", 15);
-          total.value = usecategoryDiscountedTotal;
-        }
-        break;
-      case 3:
-        {
-          double pointDiscountedTotal =
-              usePoints(customerPoints: 68, discountCapPercent: 20);
-          double totalPrice = 0.0;
-          for (var item in cart) {
-            totalPrice += double.parse(item.price);
-          }
-          total.value = totalPrice - pointDiscountedTotal;
-        }
-        break;
-
-      case 4:
-        {
-          double specialCampaignDiscountedTotal =
-              useSpecialCampaign(cart, 300, 40);
-          total.value = specialCampaignDiscountedTotal;
-        }
-      default:
+  double useSpecialCampaign(
+      List<AvailableItem> car, double threshold, double discountAmount) {
+    double totalPrice = 0.0;
+    for (var item in cart) {
+      totalPrice += double.parse(item.price);
     }
+    int discountMultiplier = (totalPrice / threshold).floor();
+    double discount = discountMultiplier * discountAmount;
+
+    totalDiscountFromSeasonal.value = discount;
+    return totalDiscountFromSeasonal.value;
   }
 }
