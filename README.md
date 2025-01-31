@@ -1,20 +1,11 @@
 # discountapp by Surayut Boonchuang
+# Please run on web browser
 
 An assignment of discount module app.
 
+
 ## Getting Started
 
-## Fixed Amount Discount
-![Alt text](/assets/preview1.png)
+## Preview 
 
-## Percentage Discount
-![Alt text](/assets/preview2.png)
-
-## Percentage Discount By Item Category
-![Alt text](/assets/preview3.png)
-
-## Points Discount
-![Alt text](/assets/preview4.png)
-
-## Special Campaigns Discount
-![Alt text](/assets/preview5.png)
+![Alt text](/assets/preview.png)
